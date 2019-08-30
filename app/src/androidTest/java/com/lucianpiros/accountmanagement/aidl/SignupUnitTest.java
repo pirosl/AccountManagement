@@ -18,7 +18,7 @@ public class SignupUnitTest {
     private static String PASSWORD = "password";
 
     @Test
-    public void testLoginIsParcelable() {
+    public void testSignupIsParcelable() {
         Signup signup = new Signup(NAME, EMAIL, PASSWORD, PASSWORD);
 
         Parcel parcel = Parcel.obtain();
