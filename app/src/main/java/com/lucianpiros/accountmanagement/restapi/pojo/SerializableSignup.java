@@ -2,6 +2,9 @@ package com.lucianpiros.accountmanagement.restapi.pojo;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Signup class container - used as parameter for HTTP POST request
+ */
 public class SerializableSignup {
     @SerializedName("name")
     public String name;
