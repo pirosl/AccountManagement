@@ -12,6 +12,9 @@ import com.lucianpiros.accountmanagement.aidl.Signup;
 
 import androidx.annotation.Nullable;
 
+/**
+ * IPC Service
+ */
 public class UserAccountService extends Service {
     @Override
     public void onCreate() {
