@@ -11,6 +11,11 @@ public final class Me implements Parcelable {
     private String location;
     private String birthdate;
 
+    public Me(String name, String location, String birthdate) {
+        this.name = name;
+        this.location = location;
+        this.birthdate = birthdate;
+    }
 
     protected Me(Parcel in) {
         readFromParcel(in);
@@ -44,5 +49,17 @@ public final class Me implements Parcelable {
         name = parcel.readString();
         location = parcel.readString();
         birthdate = parcel.readString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getBirthdate() {
+        return birthdate;
     }
 }
