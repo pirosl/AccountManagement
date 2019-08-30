@@ -12,6 +12,12 @@ public final class Signup implements Parcelable {
     private String password;
     private String password2;
 
+    public Signup(String name, String email, String password, String password2) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.password2 = password2;
+    }
 
     protected Signup(Parcel in) {
         readFromParcel(in);
@@ -48,5 +54,21 @@ public final class Signup implements Parcelable {
         email = parcel.readString();
         password = parcel.readString();
         password2 = parcel.readString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getPassword2() {
+        return password2;
     }
 }
