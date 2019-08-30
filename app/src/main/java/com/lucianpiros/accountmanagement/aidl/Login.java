@@ -10,6 +10,11 @@ public final class Login implements Parcelable {
     private String email;
     private String password;
 
+    public Login(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     protected Login(Parcel in) {
         readFromParcel(in);
     }
@@ -41,5 +46,13 @@ public final class Login implements Parcelable {
     private void readFromParcel(Parcel parcel) {
         email = parcel.readString();
         password = parcel.readString();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
