@@ -3,7 +3,7 @@ package com.lucianpiros.accountmanagement.restapi.pojo;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Signup request HTTP POST response
+ * Me request HTTP GET response
  */
 public class MeResponse {
 
