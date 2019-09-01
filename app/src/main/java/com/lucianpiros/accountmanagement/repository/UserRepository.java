@@ -48,7 +48,7 @@ public class UserRepository implements PersistenceDataProvider  {
         userDao = db.userDao();
     }
 
-    static UserRepository getUserRepository(final Context context) {
+    public static UserRepository getUserRepository(final Context context) {
         if (userRepositoryInstance == null) {
             synchronized (UserRoomDatabase.class) {
                 if (userRepositoryInstance == null) {
@@ -94,7 +94,7 @@ public class UserRepository implements PersistenceDataProvider  {
         return loggedIn;
     }
 
-    boolean signUp(final Signup signUpInfo) throws Exception {
+    public boolean signUp(final Signup signUpInfo) throws Exception {
         loggedIn = false;
         loggedInEmail = null;
 
@@ -212,6 +212,10 @@ public class UserRepository implements PersistenceDataProvider  {
         }
 
         return (errorCode == OK);
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     @Override
