@@ -3,7 +3,9 @@ package com.lucianpiros.accountmanagement.restapi;
 import com.google.gson.Gson;
 import com.lucianpiros.accountmanagement.restapi.pojo.LoginResponse;
 import com.lucianpiros.accountmanagement.restapi.pojo.MeResponse;
+import com.lucianpiros.accountmanagement.restapi.pojo.MeUpdateResponse;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableLogin;
+import com.lucianpiros.accountmanagement.restapi.pojo.SerializableMe;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
 import com.lucianpiros.accountmanagement.restapi.pojo.SignupResponse;
 
@@ -158,6 +160,38 @@ public class RESTClient {
 
             @Override
             public void onFailure(Call<MeResponse> call, Throwable t) {
+                callback.onFailure(-1, t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Me Rest PATCH API call
+     * @param callback - callback instance
+     */
+    public void updateMeDetails(SerializableMe serializableMe, final Callback callback) {
+        UserAccountAPI userAccountAPI = getClient().create(UserAccountAPI.class);
+
+        Call<MeUpdateResponse> call = userAccountAPI.updateMeDetails(serializableMe, "Bearer " + apiToken);
+
+        call.enqueue(new retrofit2.Callback<MeUpdateResponse>() {
+            @Override
+            public void onResponse(Call<MeUpdateResponse> call, Response<MeUpdateResponse> response) {
+                if(response.isSuccessful()) {
+                    MeUpdateResponse meUpdateResponse = response.body();
+                    // TODO: we'll have to save details on our persistence
+
+                    callback.onResponse(meUpdateResponse.message);
+                }
+                else {
+                    // use Gson to deserialize the response
+                    MeUpdateResponse meUpdateResponse = new Gson().fromJson(response.errorBody().charStream(), MeUpdateResponse.class);
+                    callback.onFailure(response.code(), meUpdateResponse.message);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MeUpdateResponse> call, Throwable t) {
                 callback.onFailure(-1, t.getMessage());
             }
         });

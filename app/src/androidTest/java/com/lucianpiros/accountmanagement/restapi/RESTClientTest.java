@@ -3,6 +3,7 @@ package com.lucianpiros.accountmanagement.restapi;
 import android.util.Log;
 
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableLogin;
+import com.lucianpiros.accountmanagement.restapi.pojo.SerializableMe;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
 import com.lucianpiros.accountmanagement.util.Utility;
 
@@ -20,6 +21,8 @@ public class RESTClientTest {
     private static String EMAIL = "@email.com";
     private static String PASSWORD = "password";
     private static String INVALID_PASSWORD = "p_______";
+    private static String LOCATION = "location";
+    private static String BIRTHDAY = "2000-01-01";
 
     private class RestTest implements RESTClient.Callback {
         protected CountDownLatch latch;
@@ -206,5 +209,32 @@ public class RESTClientTest {
         NegativeTest ntm = new NegativeTest(new CountDownLatch(1), "Invalid Auth Token");
         RESTClient.getInstance().retrieveMeDetails(ntm);
         ntm.run();
+    }
+
+    @Test
+    public void testMeUpdateDetails() {
+        // TODO: this test might fail as the random generated user might be already registered
+        //       test could be fixed if an API for removing the user would exit
+
+        String name = Utility.randomName();
+        SerializableSignup serializableSignup = new SerializableSignup(name, name + EMAIL, PASSWORD, PASSWORD);
+
+        PositiveTest pts = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().signUp(serializableSignup, pts);
+        pts.run();
+
+        SerializableLogin serializableLogin = new SerializableLogin(name + EMAIL, PASSWORD);
+        PositiveTest ptl = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().login(serializableLogin, ptl);
+        ptl.run();
+
+        PositiveTest ptm = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().retrieveMeDetails(ptm);
+        ptm.run();
+
+        SerializableMe serializableMe = new SerializableMe(name, LOCATION, BIRTHDAY);
+        PositiveTest ptmu = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().updateMeDetails(serializableMe, ptmu);
+        ptmu.run();
     }
 }
