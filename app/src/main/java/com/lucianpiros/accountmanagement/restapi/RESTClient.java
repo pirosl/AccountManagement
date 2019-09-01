@@ -1,6 +1,8 @@
 package com.lucianpiros.accountmanagement.restapi;
 
 import com.google.gson.Gson;
+import com.lucianpiros.accountmanagement.restapi.pojo.LoginResponse;
+import com.lucianpiros.accountmanagement.restapi.pojo.SerializableLogin;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
 import com.lucianpiros.accountmanagement.restapi.pojo.SignupResponse;
 
@@ -94,4 +96,35 @@ public class RESTClient {
         });
     }
 
+    /**
+     * Login Rest API call
+     * @param serializableLogin - login parameters
+     * @param callback - callback instance
+     */
+    public void login(SerializableLogin serializableLogin, final Callback callback) {
+        UserAccountAPI userAccountAPI = getClient().create(UserAccountAPI.class);
+
+        Call<LoginResponse> call = userAccountAPI.login(serializableLogin);
+
+        call.enqueue(new retrofit2.Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if(response.isSuccessful()) {
+                    LoginResponse loginResponse = response.body();
+                    apiToken = loginResponse.api_token;
+                    callback.onResponse(loginResponse.message);
+                }
+                else {
+                    // use Gson to deserialize the response
+                    LoginResponse loginResponse = new Gson().fromJson(response.errorBody().charStream(), LoginResponse.class);
+                    callback.onFailure(response.code(), loginResponse.message);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                callback.onFailure(-1, t.getMessage());
+            }
+        });
+    }
 }

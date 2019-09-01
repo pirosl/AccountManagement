@@ -1,5 +1,7 @@
 package com.lucianpiros.accountmanagement.restapi;
 
+import com.lucianpiros.accountmanagement.restapi.pojo.LoginResponse;
+import com.lucianpiros.accountmanagement.restapi.pojo.SerializableLogin;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
 import com.lucianpiros.accountmanagement.restapi.pojo.SignupResponse;
 
@@ -13,4 +15,7 @@ import retrofit2.http.POST;
 public interface UserAccountAPI {
     @POST("auth/signup")
     Call<SignupResponse> signUp(@Body SerializableSignup serializableSignup);
+
+    @POST("auth/login")
+    Call<LoginResponse> login(@Body SerializableLogin serializableLogin);
 }

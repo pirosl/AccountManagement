@@ -2,6 +2,7 @@ package com.lucianpiros.accountmanagement.restapi;
 
 import android.util.Log;
 
+import com.lucianpiros.accountmanagement.restapi.pojo.SerializableLogin;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
 import com.lucianpiros.accountmanagement.util.Utility;
 
@@ -18,6 +19,7 @@ public class RESTClientTest {
     private final static String TAG = RESTClient.class.getCanonicalName();
     private static String EMAIL = "@email.com";
     private static String PASSWORD = "password";
+    private static String INVALID_PASSWORD = "p_______";
 
     private class RestTest implements RESTClient.Callback {
         protected CountDownLatch latch;
@@ -118,5 +120,52 @@ public class RESTClientTest {
         NegativeTest nt = new NegativeTest(new CountDownLatch(1), "User with that email already exists");
         RESTClient.getInstance().signUp(serializableSignup, nt);
         nt.run();
+    }
+
+    @Test
+    public void testValidLogin() {
+        // TODO: this test might fail as the random generated user might be already registered
+        //       test could be fixed if an API for removing the user would exit
+
+        String name = Utility.randomName();
+        SerializableSignup serializableSignup = new SerializableSignup(name, name + EMAIL, PASSWORD, PASSWORD);
+
+        PositiveTest pts = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().signUp(serializableSignup, pts);
+        pts.run();
+
+        SerializableLogin serializableLogin = new SerializableLogin(name + EMAIL, PASSWORD);
+        PositiveTest ptl = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().login(serializableLogin, ptl);
+        ptl.run();
+    }
+
+    @Test
+    public void testLoginInvaliUserPassword() {
+        // TODO: this test might fail as the random generated user might be already registered
+        //       test could be fixed if an API for removing the user would exit
+
+        String name = Utility.randomName();
+        SerializableSignup serializableSignup = new SerializableSignup(name, name + EMAIL, PASSWORD, PASSWORD);
+
+        PositiveTest pts = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().signUp(serializableSignup, pts);
+        pts.run();
+
+        SerializableLogin serializableLogin = new SerializableLogin(name + EMAIL, INVALID_PASSWORD);
+        NegativeTest ntl = new NegativeTest(new CountDownLatch(1), "Invalid User Password");
+        RESTClient.getInstance().login(serializableLogin, ntl);
+        ntl.run();
+    }
+
+    @Test
+    public void testLoginUserNotFound() {
+        // TODO: this test might fail as the random generated user might be already registered
+
+        String name = Utility.randomName();
+        SerializableLogin serializableLogin = new SerializableLogin(name + EMAIL, INVALID_PASSWORD);
+        NegativeTest ntl = new NegativeTest(new CountDownLatch(1), "User not found with that email");
+        RESTClient.getInstance().login(serializableLogin, ntl);
+        ntl.run();
     }
 }
