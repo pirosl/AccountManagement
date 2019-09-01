@@ -20,6 +20,9 @@ public class MeResponse {
         @SerializedName("name")
         public String name;
 
+        @SerializedName("email")
+        public String email;
+
         @SerializedName("profile")
         public Profile profile;
     }

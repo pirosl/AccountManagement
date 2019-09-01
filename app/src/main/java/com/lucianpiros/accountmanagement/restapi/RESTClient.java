@@ -1,6 +1,7 @@
 package com.lucianpiros.accountmanagement.restapi;
 
 import com.google.gson.Gson;
+import com.lucianpiros.accountmanagement.database.PersistenceDataProvider;
 import com.lucianpiros.accountmanagement.restapi.pojo.LoginResponse;
 import com.lucianpiros.accountmanagement.restapi.pojo.MeResponse;
 import com.lucianpiros.accountmanagement.restapi.pojo.MeUpdateResponse;
@@ -34,11 +35,14 @@ public class RESTClient {
     private Retrofit retrofit;
     private String apiToken;
 
+    private PersistenceDataProvider persistenceDataProvider;
+
     /**
      * Private constructor
      */
     private RESTClient() {
         retrofit = null;
+        persistenceDataProvider = null;
     }
 
     public static synchronized RESTClient getInstance() {
@@ -47,6 +51,10 @@ public class RESTClient {
         }
 
         return restClientInstance;
+    }
+
+    public void setPersistenceDataProvider(PersistenceDataProvider persistenceDataProvider) {
+        this.persistenceDataProvider = persistenceDataProvider;
     }
 
     /**
@@ -147,7 +155,11 @@ public class RESTClient {
             public void onResponse(Call<MeResponse> call, Response<MeResponse> response) {
                 if(response.isSuccessful()) {
                     MeResponse meResponse = response.body();
-                    // TODO: we'll have to save details on our persistence
+
+                    // if there is any persistence data provider save data locally
+                    if(persistenceDataProvider != null) {
+                        persistenceDataProvider.saveUserDetails(meResponse.data.email, meResponse.data.name, meResponse.data.profile.location, meResponse.data.profile.birthday);
+                    }
 
                     callback.onResponse(meResponse.message);
                 }
@@ -179,8 +191,6 @@ public class RESTClient {
             public void onResponse(Call<MeUpdateResponse> call, Response<MeUpdateResponse> response) {
                 if(response.isSuccessful()) {
                     MeUpdateResponse meUpdateResponse = response.body();
-                    // TODO: we'll have to save details on our persistence
-
                     callback.onResponse(meUpdateResponse.message);
                 }
                 else {
