@@ -2,6 +2,7 @@ package com.lucianpiros.accountmanagement.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -70,4 +71,13 @@ public class UserAccountService extends Service {
             return UserRepository.getUserRepository(getApplicationContext()).getErrorMessage();
         }
     };
+
+    // user for testing
+    public class LocalBinder extends Binder {
+
+        public UserAccountService getService() {
+            // Return this instance of LocalService so clients can call public methods.
+            return UserAccountService.this;
+        }
+    }
 }
