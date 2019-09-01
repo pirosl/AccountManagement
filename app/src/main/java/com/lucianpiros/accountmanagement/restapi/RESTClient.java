@@ -2,6 +2,7 @@ package com.lucianpiros.accountmanagement.restapi;
 
 import com.google.gson.Gson;
 import com.lucianpiros.accountmanagement.restapi.pojo.LoginResponse;
+import com.lucianpiros.accountmanagement.restapi.pojo.MeResponse;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableLogin;
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
 import com.lucianpiros.accountmanagement.restapi.pojo.SignupResponse;
@@ -79,11 +80,12 @@ public class RESTClient {
             public void onResponse(Call<SignupResponse> call, Response<SignupResponse> response) {
                 if(response.isSuccessful()) {
                     SignupResponse signupResponse = response.body();
-                    apiToken = signupResponse.api_token;
+                    apiToken = signupResponse.data.api_token;
                     callback.onResponse(signupResponse.message);
                 }
                 else {
                     // use Gson to deserialize the response
+                    apiToken = null;
                     SignupResponse signupResponse = new Gson().fromJson(response.errorBody().charStream(), SignupResponse.class);
                     callback.onFailure(response.code(), signupResponse.message);
                 }
@@ -111,11 +113,12 @@ public class RESTClient {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if(response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
-                    apiToken = loginResponse.api_token;
+                    apiToken = loginResponse.data.api_token;
                     callback.onResponse(loginResponse.message);
                 }
                 else {
                     // use Gson to deserialize the response
+                    apiToken = null;
                     LoginResponse loginResponse = new Gson().fromJson(response.errorBody().charStream(), LoginResponse.class);
                     callback.onFailure(response.code(), loginResponse.message);
                 }
@@ -123,6 +126,38 @@ public class RESTClient {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                callback.onFailure(-1, t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Me Rest API call
+     * @param callback - callback instance
+     */
+    public void retrieveMeDetails(final Callback callback) {
+        UserAccountAPI userAccountAPI = getClient().create(UserAccountAPI.class);
+
+        Call<MeResponse> call = userAccountAPI.retrieveMeDetails("Bearer " + apiToken);
+
+        call.enqueue(new retrofit2.Callback<MeResponse>() {
+            @Override
+            public void onResponse(Call<MeResponse> call, Response<MeResponse> response) {
+                if(response.isSuccessful()) {
+                    MeResponse meResponse = response.body();
+                    // TODO: we'll have to save details on our persistence
+
+                    callback.onResponse(meResponse.message);
+                }
+                else {
+                    // use Gson to deserialize the response
+                    MeResponse meResponse = new Gson().fromJson(response.errorBody().charStream(), MeResponse.class);
+                    callback.onFailure(response.code(), meResponse.message);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MeResponse> call, Throwable t) {
                 callback.onFailure(-1, t.getMessage());
             }
         });

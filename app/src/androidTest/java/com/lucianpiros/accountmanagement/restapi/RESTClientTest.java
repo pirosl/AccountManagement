@@ -168,4 +168,43 @@ public class RESTClientTest {
         RESTClient.getInstance().login(serializableLogin, ntl);
         ntl.run();
     }
+
+    @Test
+    public void testMeDetails() {
+        // TODO: this test might fail as the random generated user might be already registered
+        //       test could be fixed if an API for removing the user would exit
+
+        String name = Utility.randomName();
+        SerializableSignup serializableSignup = new SerializableSignup(name, name + EMAIL, PASSWORD, PASSWORD);
+
+        PositiveTest pts = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().signUp(serializableSignup, pts);
+        pts.run();
+
+        SerializableLogin serializableLogin = new SerializableLogin(name + EMAIL, PASSWORD);
+        PositiveTest ptl = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().login(serializableLogin, ptl);
+        ptl.run();
+
+        PositiveTest ptm = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().retrieveMeDetails(ptm);
+        ptm.run();
+    }
+
+    @Test
+    public void testMeDetailsInvalidToken() {
+        // TODO: this test might fail as the random generated user might be already registered
+        //       test could be fixed if an API for removing the user would exit
+
+        String name = Utility.randomName();
+        SerializableLogin serializableLogin = new SerializableLogin(name + EMAIL, INVALID_PASSWORD);
+
+        NegativeTest ntl = new NegativeTest(new CountDownLatch(1), "User not found with that email");
+        RESTClient.getInstance().login(serializableLogin, ntl);
+        ntl.run();
+
+        NegativeTest ntm = new NegativeTest(new CountDownLatch(1), "Invalid Auth Token");
+        RESTClient.getInstance().retrieveMeDetails(ntm);
+        ntm.run();
+    }
 }
