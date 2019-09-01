@@ -3,10 +3,10 @@ package com.lucianpiros.accountmanagement.restapi;
 import android.util.Log;
 
 import com.lucianpiros.accountmanagement.restapi.pojo.SerializableSignup;
+import com.lucianpiros.accountmanagement.util.Utility;
 
 import org.junit.Test;
 
-import java.security.SecureRandom;
 import java.util.concurrent.CountDownLatch;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -19,89 +19,66 @@ public class RESTClientTest {
     private static String EMAIL = "@email.com";
     private static String PASSWORD = "password";
 
-    private static SecureRandom random = new SecureRandom();
+    private class RestTest implements RESTClient.Callback {
+        protected CountDownLatch latch;
 
-    /**
-     * Generates and return a random name
-     * @return - return generated name
-     */
-    private String randomName() {
-        final int nameLength = 10;
-        String NUMBER = "0123456789";
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("n_");
-        for (int i = 0; i < nameLength; i++) {
-
-            int rndCharAt = random.nextInt(NUMBER.length());
-            sb.append(NUMBER.charAt(rndCharAt));
+        public RestTest(CountDownLatch latch) {
+            this.latch = latch;
         }
 
-        return sb.toString();
-    }
+        @Override
+        public void onResponse(String message) {
+            // default implementation
+            fail();
+            latch.countDown();
+        }
 
-    /**
-     * Positive test - will be called in test functions
-     *
-     * @param serializableSignup - signup parameters
-     * @param expectedMessage - expected message
-     */
-    private void positiveTest(SerializableSignup serializableSignup, final String expectedMessage) {
-        final CountDownLatch latch = new CountDownLatch(1);
+        @Override
+        public void onFailure(int code, String error) {
+            // default implementation
+            fail();
+            latch.countDown();
+        }
 
-        RESTClient.getInstance().signUp(serializableSignup, new RESTClient.Callback() {
-            @Override
-            public void onResponse(String message) {
-                latch.countDown();
-                assertThat(message, is(expectedMessage));
+        public void run() {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public void onFailure(int code, String error) {
-                // this should never happen
-                Log.d(TAG, error);
-                fail();
-                latch.countDown();
-            }
-        });
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
-    /**
-     * Negative test - will be called in test functions
-     *
-     * @param serializableSignup - signup parameters
-     * @param expectedMessage - expected message
-     */
-    private void negativeTest(SerializableSignup serializableSignup, final String expectedMessage) {
-        final CountDownLatch latch = new CountDownLatch(1);
+    public class PositiveTest extends RestTest {
+        private String expectedMessage;
 
-        RESTClient.getInstance().signUp(serializableSignup, new RESTClient.Callback() {
-            @Override
-            public void onResponse(String message) {
-                // this should never happen
-                latch.countDown();
-                fail();
-            }
+        public PositiveTest(CountDownLatch latch, String expectedMessage) {
+            super(latch);
+            this.expectedMessage = expectedMessage;
+        }
 
-            @Override
-            public void onFailure(int code, String error) {
-                // this is the expected path
-                Log.d(TAG, error);
-                assertThat(error, is(expectedMessage));
-                latch.countDown();
-            }
-        });
+        @Override
+        public void onResponse(String message) {
+            // Override positive run
+            latch.countDown();
+            assertThat(message, is(expectedMessage));
+        }
+    }
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public class NegativeTest extends RestTest {
+        private String expectedMessage;
+
+        public NegativeTest(CountDownLatch latch, String expectedMessage) {
+            super(latch);
+            this.expectedMessage = expectedMessage;
+        }
+
+        @Override
+        public void onFailure(int code, String error) {
+            // override failure path
+            Log.d(TAG, error);
+            assertThat(error, is(expectedMessage));
+            latch.countDown();
         }
     }
 
@@ -110,25 +87,36 @@ public class RESTClientTest {
         // TODO: this test might fail as the random generated user might be already registered
         //       test could be fixed if an API for removing the user would exit
 
-        String name = randomName();
+        String name = Utility.randomName();
         SerializableSignup serializableSignup = new SerializableSignup(name, name + EMAIL, PASSWORD, PASSWORD);
 
-        positiveTest(serializableSignup, "ok");
+        PositiveTest pt = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().signUp(serializableSignup, pt);
+        pt.run();
     }
 
     @Test
     public void testInvalidInputSignUp() {
         SerializableSignup serializableSignup = new SerializableSignup("", EMAIL, PASSWORD, PASSWORD);
-        negativeTest(serializableSignup, "Invalid input");
+
+        NegativeTest nt = new NegativeTest(new CountDownLatch(1), "Invalid input");
+        RESTClient.getInstance().signUp(serializableSignup, nt);
+        nt.run();
     }
 
     @Test
     public void testDuplicateSignUp() {
         // TODO: this test might fail as the random generated user might be already registered
         //       test could be fixed if an API for removing the user would exit
-        String name = randomName();
+        String name = Utility.randomName();
         final SerializableSignup serializableSignup = new SerializableSignup(name, name + EMAIL, PASSWORD, PASSWORD);
-        positiveTest(serializableSignup, "ok");
-        negativeTest(serializableSignup, "User with that email already exists");
+
+        PositiveTest pt = new PositiveTest(new CountDownLatch(1), "ok");
+        RESTClient.getInstance().signUp(serializableSignup, pt);
+        pt.run();
+
+        NegativeTest nt = new NegativeTest(new CountDownLatch(1), "User with that email already exists");
+        RESTClient.getInstance().signUp(serializableSignup, nt);
+        nt.run();
     }
 }
