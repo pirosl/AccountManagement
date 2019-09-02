@@ -1,5 +1,6 @@
 package com.lucianpiros.accountmanagement.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +13,6 @@ import com.lucianpiros.accountmanagement.model.UserAccountModel;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -30,7 +30,7 @@ public class SignUpActivity extends AppCompatActivity {
         final ProgressBar progressBar = findViewById(R.id.progressbar);
         Button signUp = findViewById(R.id.signup);
 
-        userAccountModel = ViewModelProviders.of(this).get(UserAccountModel.class);
+        userAccountModel = UserAccountModel.getUserAccountModel(this);
 
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,7 +45,8 @@ public class SignUpActivity extends AppCompatActivity {
             public void onChanged(Boolean aBoolean) {
                 progressBar.setVisibility(View.GONE);
                 if (aBoolean) {
-
+                    Intent intent = new Intent(getApplicationContext(), UserDetailsActivity.class);
+                    startActivity(intent);
                 } else {
                     // TODO: add more detailed error and negative use cases handling
                     Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.invalid_login), Toast.LENGTH_LONG);

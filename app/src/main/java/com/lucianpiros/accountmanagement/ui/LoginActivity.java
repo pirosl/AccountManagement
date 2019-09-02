@@ -14,7 +14,6 @@ import com.lucianpiros.accountmanagement.model.UserAccountModel;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -31,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
         TextView signup = findViewById(R.id.signup);
         Button logIn = findViewById(R.id.login);
 
-        userAccountModel = ViewModelProviders.of(this).get(UserAccountModel.class);
+        userAccountModel = UserAccountModel.getUserAccountModel(this);
 
         logIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +45,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onChanged(Boolean aBoolean) {
                 progressBar.setVisibility(View.GONE);
                 if(aBoolean) {
-
+                    Intent intent = new Intent(getApplicationContext(), UserDetailsActivity.class);
+                    startActivity(intent);
                 }
                 else {
                     // TODO: add more detailed error and negative use cases handling
