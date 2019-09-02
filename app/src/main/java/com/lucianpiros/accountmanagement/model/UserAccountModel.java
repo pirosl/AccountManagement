@@ -9,6 +9,7 @@ import android.os.IBinder;
 
 import com.lucianpiros.accountmanagement.aidl.IUserAccountService;
 import com.lucianpiros.accountmanagement.aidl.Login;
+import com.lucianpiros.accountmanagement.aidl.Signup;
 import com.lucianpiros.accountmanagement.service.UserAccountService;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,11 @@ public class UserAccountModel extends AndroidViewModel {
         new loginAsyncTask(getApplication().getApplicationContext()).execute(login);
     }
 
+    public void signup(String name, String email, String password, String password2) {
+        Signup signup = new Signup(name, email, password, password2);
+        new signupAsyncTask(getApplication().getApplicationContext()).execute(signup);
+    }
+
     public LiveData<Boolean> loggedIn() {
         return logedIn;
     }
@@ -47,7 +53,6 @@ public class UserAccountModel extends AndroidViewModel {
     private class loginAsyncTask extends android.os.AsyncTask<Login, Void, Void> {
         private Context context;
         private boolean logedInWT;
-
 
         loginAsyncTask(Context context) {
             this.context = context;
@@ -68,6 +73,36 @@ public class UserAccountModel extends AndroidViewModel {
             Login login = params[0];
             try {
                 logedInWT = userAccountService.login(login);
+            } catch(Exception e) {
+                logedInWT = false;
+            }
+            return null;
+        }
+    }
+
+    private class signupAsyncTask extends android.os.AsyncTask<Signup, Void, Void> {
+        private Context context;
+        private boolean logedInWT;
+
+        signupAsyncTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            logedIn.setValue(logedInWT);
+        }
+
+        @Override
+        protected Void doInBackground(final Signup... params) {
+
+            Intent intent = new Intent(context, UserAccountService.class);
+            intent.setAction(IUserAccountService.class.getName());
+            context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+            Signup signup = params[0];
+            try {
+                logedInWT = userAccountService.signUp(signup);
             } catch(Exception e) {
                 logedInWT = false;
             }
