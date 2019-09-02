@@ -1,5 +1,6 @@
 package com.lucianpiros.accountmanagement.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -49,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else {
                     // TODO: add more detailed error and negative use cases handling
-                    Toast toast=Toast.makeText(getApplicationContext(),getString(R.string.invalid_login),Toast.LENGTH_SHORT);
+                    Toast toast=Toast.makeText(getApplicationContext(),getString(R.string.invalid_login),Toast.LENGTH_LONG);
                     toast.show();
                 }
             }
@@ -58,7 +59,8 @@ public class LoginActivity extends AppCompatActivity {
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+                startActivity(intent);
             }
         });
     }
