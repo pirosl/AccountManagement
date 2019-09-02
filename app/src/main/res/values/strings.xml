@@ -14,4 +14,6 @@
     <string name="user_information">User Information</string>
     <string name="location">Location</string>
     <string name="birthdate">Birthdate</string>
+    <string name="update_user_information">Update user information</string>
+    <string name="update">Update</string>
 </resources>

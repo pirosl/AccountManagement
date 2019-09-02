@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 public class UserAccountModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> logedIn = new MutableLiveData<Boolean>();
+    private final MutableLiveData<Boolean> updated = new MutableLiveData<Boolean>();
     private final MutableLiveData<Me> meInfo = new MutableLiveData<Me>();
 
     private static UserAccountModel userAccountModel = null;
@@ -56,8 +57,18 @@ public class UserAccountModel extends AndroidViewModel {
         new signupAsyncTask(getApplication().getApplicationContext()).execute(signup);
     }
 
+    public void update(String name, String location, String birthdate) {
+
+        Me me = new Me(name, location, birthdate);
+        new updateAsyncTask(getApplication().getApplicationContext()).execute(me);
+    }
+
     public LiveData<Boolean> loggedIn() {
         return logedIn;
+    }
+
+    public LiveData<Boolean> updateResult() {
+        return updated;
     }
 
     public LiveData<Me> userInfo() {
@@ -145,6 +156,32 @@ public class UserAccountModel extends AndroidViewModel {
                 meWT = userAccountService.getUserInfo();
             } catch(Exception e) {
                 meWT = null;
+            }
+            return null;
+        }
+    }
+
+    private class updateAsyncTask extends android.os.AsyncTask<Me, Void, Void> {
+        private Context context;
+        private boolean updatedWT;
+
+        updateAsyncTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            updated.setValue(updatedWT);
+            new readInfoAsyncTask(context).execute();
+        }
+
+        @Override
+        protected Void doInBackground(final Me... params) {
+            try {
+                Me me = params[0];
+                updatedWT = userAccountService.updateUserInfo(me);
+            } catch(Exception e) {
+                updatedWT = false;
             }
             return null;
         }
