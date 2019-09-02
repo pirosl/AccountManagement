@@ -11,4 +11,7 @@
     <string name="name">Name</string>
     <string name="repeat_password">Repeat Password</string>
     <string name="sign_up">Sign up</string>
+    <string name="user_information">User Information</string>
+    <string name="location">Location</string>
+    <string name="birthdate">Birthdate</string>
 </resources>

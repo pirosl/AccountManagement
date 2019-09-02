@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.SignUpActivity" />
+        <activity android:name=".ui.UserDetailsActivity" />
 
         <service android:name=".service.UserAccountService" />
     </application>

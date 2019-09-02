@@ -1,6 +1,7 @@
 package com.lucianpiros.accountmanagement.repository;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 
 import com.lucianpiros.accountmanagement.aidl.Login;
@@ -46,6 +47,7 @@ public class UserRepository implements PersistenceDataProvider  {
         this.context = context;
         db = Room.databaseBuilder(context, UserRoomDatabase.class, "userDatabase").build();
         userDao = db.userDao();
+        RESTClient.getInstance().setPersistenceDataProvider(this);
     }
 
     public static UserRepository getUserRepository(final Context context) {
@@ -240,7 +242,11 @@ public class UserRepository implements PersistenceDataProvider  {
 
         @Override
         protected Void doInBackground(final UserEntity... params) {
-            asyncTaskDao.insert(params[0]);
+            try {
+                asyncTaskDao.insert(params[0]);
+            }catch(SQLiteConstraintException ex) {
+                // TODO: handle this error
+            }
             return null;
         }
     }
